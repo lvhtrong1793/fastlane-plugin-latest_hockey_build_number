@@ -1,3 +1,6 @@
 lane :test do
-  latest_hockey_build_number
+  build_number = latest_hockey_build_number(
+    api_token: "",
+    bundle_id: "",
+    platform: "") # ios, android
 end

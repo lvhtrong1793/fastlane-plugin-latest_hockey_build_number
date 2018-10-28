@@ -13,7 +13,7 @@ module Fastlane
         list_response = http.request(list_request)
         app_list = JSON.parse(list_response.body)['apps']
 
-        app_index = app_list.find_index { |app| app['platform'] == 'iOS' &&  app['bundle_identifier'] == config[:bundle_id] }
+        app_index = app_list.find_index { |app| app['platform'].downcase == config[:platform] && app['bundle_identifier'] == config[:bundle_id] }
 
         if app_index.nil? then
             UI.error "No application with bundle id #{config[:bundle_id]}"
@@ -31,7 +31,7 @@ module Fastlane
 
         if latest_build.nil? then
             UI.error "The app has no versions yet"
-            return nil
+            return 0
         end
 
         return latest_build['version']
@@ -59,11 +59,17 @@ module Fastlane
                                        verify_block: proc do |value|
                                          UI.user_error!("No bundle ID for Hockey given, pass using `bundle_id: 'bundle id'`") unless value and !value.empty?
                                        end),
+          FastlaneCore::ConfigItem.new(key: :platform,
+                                      env_name: "FL_PLATFORM",
+                                      description: "Platform (ios, android)",
+                                      verify_block: proc do |value|
+                                        UI.user_error!("No platform specified, pass using `platform: ':android or :ios'`") unless value and !value.empty?
+                                       end),
         ]
       end
 
       def self.is_supported?(platform)
-        [:ios].include? platform
+        [:ios, :android].include? platform
       end
     end
   end
